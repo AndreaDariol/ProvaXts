@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
+	<LicenseInfo>
+		<SystemId>{50A99A2A-39B4-56A3-BC6C-0E563BCED165}</SystemId>
+		<IssueTime>2022-09-08T14:47:00</IssueTime>
+		<ExpireTime>2022-09-16T00:00:00</ExpireTime>
+		<LicenseKey>c64b3c85af5a2716208be2b799aa604e7cc56d0406508e96944f1fe27b4b9fd84096834a7e63eebdd96c926930dc71e7b1f595b5f47107cdde0adcae8b12b6d1e4cf6b1857b3597c7041826d3fc988527ab540d26aabe9ac946587c5148615b135d5eb746939dfda0ef75333630d87a3c001914c475e310329d697b9bbfb6d1a67575cb10d28e2440a810a8269988d6c82ad71da9aeaad6e59f1c9ce88053159ea47be29c3598f4d086ca191d8288608021aee13414aacfd689c91ef5da5137c59c356e0818a446c55eb541b7cf803fb34eb67c39c16e4e6572afd47fa65af41fd0d4bda1a64afd0fcad2decf517dba542c605f888fb03a25b21f6a0361ca4ca</LicenseKey>
+		<License>
+			<LicenseId>{4C256767-E6E6-4AF5-BD68-9F7ABAD0C200}</LicenseId>
+			<Name>TC3 ADS</Name>
+			<OrderNo>TC1000</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{3FF18E97-7754-401B-93FB-70544DE28A13}</LicenseId>
+			<Name>TC3 IO</Name>
+			<OrderNo>TC1100</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{66689887-CCBD-452C-AC9A-039D997C6E66}</LicenseId>
+			<Name>TC3 PLC</Name>
+			<OrderNo>TC1200</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{A19036CF-A53B-4E3A-99FF-023EF5C4798B}</LicenseId>
+			<Name>TC3 NC PTP Axis</Name>
+		</License>
+		<License>
+			<LicenseId>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</LicenseId>
+			<Name>TC3 NC PTP</Name>
+			<OrderNo>TF5000</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{57BD9670-089D-434A-85CF-90A857EE0EFF}</LicenseId>
+			<Name>TC3 NC PTP Axes Pack unlimited</Name>
+			<OrderNo>TF5020</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{C7C2EEE2-23C9-47B9-82D4-0ADF5D82C0A0}</LicenseId>
+			<Name>TC3 Motion Collision Avoidance</Name>
+			<OrderNo>TF5410</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{C04D00A1-E33D-48C9-85D4-821A99122F43}</LicenseId>
+			<Name>TC3 XTS Technology</Name>
+			<OrderNo>TF5850</OrderNo>
+		</License>
+	</LicenseInfo>
+</TcLicenseInfo>
