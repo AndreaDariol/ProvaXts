@@ -4,7 +4,8 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
 
-	Movers : ARRAY[0..38] OF AXIS_REF;	
+	Movers : ARRAY[0..38] OF AXIS_REF;
+	AsseNormale: AXIS_REF;
 
 END_VAR]]></Declaration>
   </GVL>

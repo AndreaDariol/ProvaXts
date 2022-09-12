@@ -1,13 +1,116 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1">
-  <POU Name="MAIN" Id="{f98abad4-68de-4b1e-957d-3da26beb5495}">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="MAIN" Id="{f98abad4-68de-4b1e-957d-3da26beb5495}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
-VAR
+VAR CONSTANT
+	nTub	: INT := 38;
+	AlwaysTrue				: BOOL	:= TRUE;
+	Alwaysfalse				: BOOL	:= FALSE;
 END_VAR
-]]>
-    </Declaration>
+VAR
+	fbAxisActivete : ARRAY[0..nTub] OF MC_Power;
+	fbAxisActivateNormale: MC_power;
+	fbAxisStop		: ARRAY [0..ntub] OF MC_Stop;
+	fbAxisStopNormale:	MC_Stop;
+	McMoveAbsolute	: MC_MoveAbsolute;
+	
+	i	: INT;
+	bPower:BOOL;
+	bAxisPower: BOOL;
+	baxisPowerReq: ARRAY[0..ntub] OF BOOL;
+	bAxisPowerNormale: BOOL;
+	baxisActive: ARRAY[0..ntub] OF BOOL;
+	bAxisStop: BOOL;
+	bMoveAbsoluteEnable		: BOOL;
+	bMoveDone				: BOOL;
+	bIsMoving				: BOOL;
+
+END_VAR
+]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[
+
+	FOR i := 0 TO nTub DO
+		GVL.Movers[i].ReadStatus();
+		GVL.AsseNormale.ReadStatus();
+	END_FOR
+
+IF bPower THEN
+	FOR i := 0 TO nTub DO
+		
+		fbAxisActivete[i](Axis:=GVL.Movers[i],
+						Enable:= baxisPowerReq[i],
+						Enable_Positive	:= AlwaysTrue,
+						Enable_Negative	:= AlwaysTrue,
+						Status=>baxisActive[i]);
+	
+	END_FOR
+	
+	FOR i := 0 TO nTub DO
+		fbAxisStop[i](Axis:=GVL.Movers[i],
+						Execute:= bAxisStop);
+	END_FOR
+	
+	
+	
+	McMoveAbsolute(Axis:=	GVL.movers[0],
+						execute:=bMoveAbsoluteEnable,
+						Position:= 0,
+						Velocity	:= 80,
+						Acceleration	:= 80,
+						Deceleration	:=80,
+						Jerk			:= 100,
+						Done=>bMoveDone,
+						Active=>bIsMoving);
+
+ END_IF
+ 
+ 	McMoveAbsolute(Axis:=	GVL.AsseNormale,
+						execute:=bMoveAbsoluteEnable,
+						Position:= 2000,
+						Velocity	:= 80,
+						Acceleration	:= 80,
+						Deceleration	:=80,
+						Jerk			:= 100,
+						Done=>bMoveDone,
+						Active=>bIsMoving);
+ 
+ 
+ 	fbAxisActivateNormale(Axis:=GVL.AsseNormale,
+							Enable:=bAxisPowerNormale,
+							Enable_Positive:= AlwaysTrue,
+							Enable_Negative:= AlwaysTrue);
+							]]></ST>
     </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="73" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="29" Count="2" />
+      <LineId Id="79" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="37" Count="2" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="48" Count="8" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="83" Count="7" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="67" Count="4" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="72" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>
