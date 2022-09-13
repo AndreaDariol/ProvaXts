@@ -12,104 +12,198 @@ VAR
 	fbAxisActivateNormale: MC_power;
 	fbAxisStop		: ARRAY [0..ntub] OF MC_Stop;
 	fbAxisStopNormale:	MC_Stop;
-	McMoveAbsolute	: MC_MoveAbsolute;
+	McMoveAbsolute	: ARRAY[0..ntub] OF MC_MoveAbsolute;
+	McMoveAbsoluteReal	: MC_moveAbsolute;
+	McMoveVelocity		: ARRAY[0..ntub] OF MC_MoveVelocity;
+	fbReset				: ARRAY[0..ntub] OF MC_Reset;
 	
 	i	: INT;
+	j	: INT;
 	bPower:BOOL;
 	bAxisPower: BOOL;
-	baxisPowerReq: ARRAY[0..ntub] OF BOOL;
 	bAxisPowerNormale: BOOL;
 	baxisActive: ARRAY[0..ntub] OF BOOL;
+	bAxisNormalActive		: BOOL;
 	bAxisStop: BOOL;
 	bMoveAbsoluteEnable		: BOOL;
+	bMoveAbsoluteEnableReale: BOOL;
+	bMoveVelocityEnable		: BOOL;
 	bMoveDone				: BOOL;
 	bIsMoving				: BOOL;
+	bInVelocity				: BOOL;
+	bReset					: BOOL;
+	bStop					: BOOL;
+	bPLsStop				: BOOL;
+	
+	iMovePositionTub		: INT;
+	iMovePositionNormale	: INT;
+	iPosStop				: INT;
+	
+	rTrigStop				: R_TRIG;
+	
 
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
+      <ST><![CDATA[//Read Status From Motion
+FOR i := 0 TO nTub DO
+	GVL.Movers[i].ReadStatus();
+	GVL.AsseNormale.ReadStatus();
+END_FOR
 
-	FOR i := 0 TO nTub DO
-		GVL.Movers[i].ReadStatus();
-		GVL.AsseNormale.ReadStatus();
-	END_FOR
+FOR i := 0 TO nTub DO
+	fbReset[i](Axis:=GVl.Movers[i],
+				Execute	:= bReset);
+END_FOR
 
-IF bPower THEN
-	FOR i := 0 TO nTub DO
-		
+//Drive ON
+FOR i := 0 TO nTub DO
 		fbAxisActivete[i](Axis:=GVL.Movers[i],
-						Enable:= baxisPowerReq[i],
+						Enable:= bPower,
 						Enable_Positive	:= AlwaysTrue,
 						Enable_Negative	:= AlwaysTrue,
 						Status=>baxisActive[i]);
-	
-	END_FOR
-	
-	FOR i := 0 TO nTub DO
-		fbAxisStop[i](Axis:=GVL.Movers[i],
-						Execute:= bAxisStop);
-	END_FOR
-	
-	
-	
-	McMoveAbsolute(Axis:=	GVL.movers[0],
-						execute:=bMoveAbsoluteEnable,
-						Position:= 0,
-						Velocity	:= 80,
-						Acceleration	:= 80,
-						Deceleration	:=80,
-						Jerk			:= 100,
-						Done=>bMoveDone,
-						Active=>bIsMoving);
+END_FOR
 
- END_IF
- 
- 	McMoveAbsolute(Axis:=	GVL.AsseNormale,
-						execute:=bMoveAbsoluteEnable,
-						Position:= 2000,
-						Velocity	:= 80,
-						Acceleration	:= 80,
-						Deceleration	:=80,
-						Jerk			:= 100,
-						Done=>bMoveDone,
-						Active=>bIsMoving);
- 
- 
- 	fbAxisActivateNormale(Axis:=GVL.AsseNormale,
-							Enable:=bAxisPowerNormale,
+//Normal Drive On
+fbAxisActivateNormale(Axis:=GVL.AsseNormale,
+							Enable:=bPower,
 							Enable_Positive:= AlwaysTrue,
-							Enable_Negative:= AlwaysTrue);
-							]]></ST>
+							Enable_Negative:= AlwaysTrue,
+							Status=>bAxisNormalActive);
+//Drives OFF	
+FOR i := 0 TO nTub DO
+	fbAxisStop[i](Axis:=GVL.Movers[i],
+		Execute:= NOT bpower OR bStop);
+END_FOR
+
+IF fbAxisStop[0].Done THEN
+	bStop		:= FALSE;
+END_IF
+
+//Asse Normale OFF
+	fbAxisStopNormale(Axis:=GVL.AsseNormale,
+		Execute:= NOT bpower);	
+	
+FOR i := 0 TO nTub DO	
+	McMoveAbsolute[i](Axis:=	GVL.movers[i],
+					execute:=bMoveAbsoluteEnable ,
+					Position:= iMovePositionTub + (i*100),
+					Velocity	:= 800 ,
+					Acceleration	:= 80,
+					Deceleration	:=80,
+					Jerk			:= 100,
+					Done=>bMoveDone,
+					Active=>bIsMoving);
+END_FOR
+
+FOR i := 0 TO nTub DO	
+	McMoveVelocity[i](Axis:=	GVL.movers[i],
+					execute:=bMoveVelocityEnable ,
+					Velocity	:= 800 ,
+					Acceleration	:= 500,
+					Deceleration	:=500,
+					Jerk			:= 100,
+					Direction		:= MC_Positive_Direction,
+					InVelocity		=> bInVelocity,
+					Active			=>bIsMoving);
+END_FOR
+
+IF bInVelocity THEN
+	bMoveVelocityEnable	:= FALSE;
+END_IF
+
+ 
+McMoveAbsoluteReal(Axis:=	GVL.AsseNormale,
+				execute:=bMoveAbsoluteEnableReale,
+				Position:= iMovePositionNormale,
+				Velocity	:= 80,
+				Acceleration	:= 80,
+				Deceleration	:=80,
+				Jerk			:= 100,
+				Done=>bMoveDone,
+				Active=>bIsMoving);
+				
+				
+(*				
+//tentativo di fermarne uno al volo
+IF (GVL.Movers[j].NcToPlc.ModuloActPos > iPosStop -100) AND (GVL.Movers[j].NcToPlc.ModuloActPos < iPosStop + 100) THEN
+	bPLsStop	:= TRUE;
+ELSE 
+	bPLsStop	:= FALSE;
+END_IF
+
+rTrigStop(CLK:=bPLsStop,q=>);
+IF rTrigStop.Q THEN
+	fbAxisStop[j](Axis:=GVL.Movers[j],
+		Execute:= TRUE,
+		Deceleration:= 500);
+	j:=j+1;
+	j:=j MOD nTub;
+END_IF
+*)
+
+				]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="73" Count="1" />
+      <LineId Id="73" Count="0" />
       <LineId Id="42" Count="0" />
       <LineId Id="44" Count="0" />
       <LineId Id="63" Count="0" />
       <LineId Id="45" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="128" Count="0" />
       <LineId Id="43" Count="0" />
       <LineId Id="2" Count="0" />
       <LineId Id="21" Count="0" />
-      <LineId Id="29" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="31" Count="0" />
       <LineId Id="79" Count="1" />
       <LineId Id="32" Count="0" />
       <LineId Id="28" Count="0" />
-      <LineId Id="26" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="92" Count="3" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="97" Count="0" />
       <LineId Id="37" Count="2" />
       <LineId Id="41" Count="0" />
       <LineId Id="40" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="140" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="99" Count="1" />
       <LineId Id="48" Count="8" />
       <LineId Id="62" Count="0" />
       <LineId Id="58" Count="0" />
       <LineId Id="61" Count="0" />
-      <LineId Id="23" Count="0" />
       <LineId Id="22" Count="0" />
+      <LineId Id="108" Count="3" />
+      <LineId Id="113" Count="3" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="133" Count="3" />
+      <LineId Id="132" Count="0" />
       <LineId Id="81" Count="0" />
       <LineId Id="83" Count="7" />
       <LineId Id="82" Count="0" />
-      <LineId Id="67" Count="4" />
-      <LineId Id="78" Count="0" />
+      <LineId Id="142" Count="3" />
+      <LineId Id="150" Count="4" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="161" Count="1" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="146" Count="0" />
       <LineId Id="72" Count="0" />
     </LineIds>
   </POU>
